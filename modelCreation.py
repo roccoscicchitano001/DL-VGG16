@@ -3,7 +3,7 @@ from sklearn.metrics import classification_report
 import tensorflow as tf
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
-from keras.layers import Flatten, Dense
+from keras.layers import Flatten, Dense, Dropout
 from keras.applications import VGG16
 
 # Aggiunto il batch size
@@ -18,55 +18,52 @@ train_data_dir = r'set/train/train'
 # Directory principale di test
 test_data_dir = r'set/test'
 
-# Generatore di dati per addestramento
-train_data_gen = ImageDataGenerator().flow_from_directory(
-    directory=train_data_dir,
-    target_size=(224, 224),
-    class_mode='categorical',
-    shuffle=True  # Considera di mescolare le immagini durante l'addestramento
-)
+train_datagen = ImageDataGenerator(rescale = 1./255,
+                                   rotation_range = 45,
+                                   horizontal_flip=True,
+                                   shear_range = 0.3,validation_split=0.2,
+                                   zoom_range = 0.3)
 
-# Generatore di dati per test
-test_data_gen = ImageDataGenerator().flow_from_directory(
-    directory=test_data_dir, 
-    target_size=(224,224),
-    class_mode='categorical',
-    shuffle=True  # Considera di mescolare le immagini durante il test
-)
+train_data = train_datagen.flow_from_directory(train_data_dir,
+                                              target_size = (100, 100), 
+                                              class_mode = 'categorical', batch_size = 64, subset="training")
+
+valid_data = train_datagen.flow_from_directory(train_data_dir,
+                                              target_size = (100, 100), 
+                                              class_mode = 'categorical', batch_size = 64, subset="validation")
+
+vgg16 = VGG16(input_shape = (100,100, 3), weights = 'imagenet', include_top = False)
+
+for layer in vgg16.layers:
+  layer.trainable = False
 
 # Mappa delle classi
-class_mapping = train_data_gen.class_indices
+class_mapping = train_data.class_indices
 print(f'Etichette: {class_mapping}')
 
 # Numero effettivo di classi
 num_classes = len(class_mapping)
 print(f'Numero classi: {num_classes}')
 
-# Modello VGG16
-vgg = VGG16(input_shape=(224, 224, 3), weights='imagenet', include_top=False)
+flatten = Flatten()(vgg16.output)
 
-for layer in vgg.layers:
-    layer.trainable = False
+dense = Dense(256, activation = 'relu')(flatten)
+dense = Dropout(0.5)(dense)
+dense = Dense(100, activation = 'relu')(dense)
+dense = Dropout(0.3)(dense)
 
-# Costruzione del modello personalizzato
-x = Flatten()(vgg.output)
-x = Dense(128, activation='relu')(x)
-x = Dense(64, activation='relu')(x)
-x = Dense(num_classes, activation='softmax')(x)
+# Output Layer
+prediction = Dense(33, activation = 'softmax')(dense)
 
-model = Model(inputs=vgg.input, outputs=x)
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model = Model(inputs = vgg16.input, outputs = prediction)
 
-training_steps_per_epoch = np.ceil(train_data_gen.samples / batch_size)
-validation_steps_per_epoch = np.ceil(test_data_gen.samples / batch_size)
-model.fit(train_data_gen, steps_per_epoch = training_steps_per_epoch, validation_data=test_data_gen, validation_steps=validation_steps_per_epoch,epochs=epochs, verbose=1)
-print('Training Completed!')
+model.summary()
 
-Y_pred = model.predict(test_data_gen, test_data_gen.samples / batch_size)
-val_preds = np.argmax(Y_pred, axis=1)
-val_trues =test_data_gen.classes
-print(classification_report(val_trues, val_preds))
+# Compile the Model
+model.compile(loss = 'categorical_crossentropy', metrics = ['accuracy'], optimizer='adam')
 
-# Salvataggio del modello
-keras_file = 'Model.h5'
+# Fit the model
+history = model.fit_generator(train_data,validation_data=valid_data,epochs=15)
+
+keras_file="Model.h5"
 model.save(keras_file)
