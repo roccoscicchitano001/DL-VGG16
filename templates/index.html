@@ -4,19 +4,46 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
   <title>Deep Learning Detection</title>
 </head>
+<style>
+  #deep {
+    width: 300px;
+    height: 250px;
+    border-radius: 15px;
+  }
+
+  .form-inline .form-group {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+  }
+
+  .form-inline .form-group label {
+    margin-right: 10px;
+  }
+
+  .form-inline .form-group input {
+    flex: 1;
+  }
+
+  .form-inline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
 <body>
-  <div class="container">
-  <div class="row">
-    <div class="col-lg-12">
-      <center><h1 style="padding:30px;font-weight: 600 !important;font-size: 3.2em">FRUITS PREDICTION</h1></center>
-    </div>
-    <div>
-    <div class="col-lg-12">
-      <center><form  class="form-inline" action = "/predict" method = "post" enctype="multipart/form-data">
+  <div class="px-4 py-5 my-5 text-center">
+    <img class="d-block mx-auto mb-4" src="static/images/Deep-Learning.jpg" alt="Impossibile caricare il logo" id="deep">
+    <h1 class="display-5 fw-bold text-body-emphasis">Riconosciamo l'oggetto!</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4" style="text-align: justify;">Questa applicazione possiede un'interfaccia web, tramite il framework Flask, per poter effettuare previsioni di classificazione su immagini caricate dall'utente. L'intelligenza artificiale utilizzata è un modello VGG16 pre-addestrato su ImageNet, che è un modello di deep learning comunemente utilizzato per la classificazione di immagini.</p>
+      <div>
+        <form  class="form-inline" action = "/predict" method = "post" enctype="multipart/form-data">
           <input type="file" name="file"/><br>
-          <input type = "submit" class="btn btn-success" value="Predict">
-      </form></center>
+          <input type = "submit" class="btn btn-primary btn-lg px-4 gap-3" value="Carica">
+        </form>
+      </div>
     </div>
-    </div>
+  </div>
 </body>
 </html>

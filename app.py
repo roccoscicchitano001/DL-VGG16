@@ -1,54 +1,31 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from tensorflow import keras
 from keras.models import load_model
 import numpy as np
 from keras.preprocessing.image import load_img
-from keras.applications.vgg16 import preprocess_input
+from keras.applications.vgg16 import preprocess_input, decode_predictions
 import os
 from keras.preprocessing import image
+from keras.applications import VGG16
 
 app = Flask(__name__)
-model='Model.h5'
-etichette = {
-    0: 'Apple Braeburn',
-    1: 'Apple Granny Smith',
-    2: 'Apricot',
-    3: 'Avocado',
-    4: 'Banana',
-    5: 'Blueberry',
-    6: 'Cactus fruit',
-    7: 'Cantaloupe',
-    8: 'Cherry',
-    9: 'Clementine',
-    10: 'Corn',
-    11: 'Cucumber Ripe',
-    12: 'Grape Blue',
-    13: 'Kiwi',
-    14: 'Lemon',
-    15: 'Limes',
-    16: 'Mango',
-    17: 'Onion White',
-    18: 'Orange',
-    19: 'Papaya',
-    20: 'Passion Fruit',
-    21: 'Peach',
-    22: 'Pear',
-    23: 'Pepper Green',
-    24: 'Pepper Red',
-    25: 'Pineapple',
-    26: 'Plum',
-    27: 'Pomegranate',
-    28: 'Potato Red',
-    29: 'Raspberry',
-    30: 'Strawberry',
-    31: 'Tomato',
-    32: 'Watermelon'
-}
+model = VGG16(weights='imagenet')
+
 target_img = os.path.join(os.getcwd() , 'static/images')
 
 @app.route('/')
 def index_view():
     return render_template('index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                          'favicon.ico',mimetype='image/vnd.microsoft.icon')
+
+def label_object(predictions):
+    # Decodifica le previsioni in etichette leggibili
+    decoded_predictions = decode_predictions(predictions)
+    return decoded_predictions[0][0][1]
 
 #Allow files with extension png, jpg and jpeg
 ALLOWED_EXT = set(['jpg' , 'jpeg' , 'png'])
@@ -58,12 +35,15 @@ def allowed_file(filename):
            
 # Function to load and prepare the image in right shape
 def read_image(filename):
-
-    img = load_img(filename, target_size=(224, 224))
-    x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
-    x = preprocess_input(x)
-    return x
+    try:
+        img = load_img(filename, target_size=(224, 224))
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        x = preprocess_input(x)
+        return x
+    except Exception as e:
+        print(f"Errore durante la lettura dell'immagine: {e}")
+        return None
 
 @app.route('/predict',methods=['GET','POST'])
 def predict():
@@ -74,14 +54,17 @@ def predict():
             file_path = os.path.join('static/images', filename)
             file.save(file_path)
             img = read_image(file_path)
-            class_prediction=model.predict(img)
-            # find the index of the class with maximum score
-            pred = np.argmax(class_prediction, axis=-1)
-            # print the label of the class with maximum score
-            fruit=etichette[pred[0]]
-            return render_template('predict.html', fruit = fruit,prob=class_prediction, user_image = file_path)
+
+            if img is not None:
+                class_prediction = model.predict(img)
+                # Trova l'indice della classe con il punteggio massimo
+                pred = np.argmax(class_prediction, axis=-1)
+                object = label_object(class_prediction)
+                return render_template('predict.html', object=object, user_image=file_path)
+            else:
+                return "Errore durante la lettura dell'immagine. Controlla l'estensione del file."
         else:
-            return "Unable to read the file. Please check file extension"
+            return "Impossibile leggere il file. Controlla l'estensione del file."
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader=False, port=8000)

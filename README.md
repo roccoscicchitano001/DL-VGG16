@@ -20,11 +20,15 @@ You can save your model by calling the save() function on the model and specifyi
 **Result**
 
 <p>
-Il dato finale "527/527 [==============================] - ETA: 0s - loss: 0.8589 - accuracy: 0.9463" indica che hai completato con successo tutte le epoche di addestramento. Ecco come interpretare questi ultimi valori:
+Epoch 1/3
+WARNING:tensorflow:From c:\Users\rscicchitano\Documents\GIT\deep-learning-model-by-flask\venv\lib\site-packages\keras\src\utils\tf_utils.py:492: The name tf.ragged.RaggedTensorValue is deprecated. Please use tf.compat.v1.ragged.RaggedTensorValue instead.
 
-Loss (Perdita): L'ultima loss è 0.8589, che è un valore abbastanza basso. Indica quanto il modello si discosta dagli obiettivi desiderati alla fine dell'addestramento. Una loss bassa suggerisce che il modello ha imparato a fare predizioni accurate sui dati di addestramento.
+WARNING:tensorflow:From c:\Users\rscicchitano\Documents\GIT\deep-learning-model-by-flask\venv\lib\site-packages\keras\src\engine\base_layer_utils.py:384: The name tf.executing_eagerly_outside_functions is deprecated. Please use tf.compat.v1.executing_eagerly_outside_functions instead.
 
-Accuracy (Precisione): L'ultima accuracy è 0.9463, che corrisponde al 94.63%. Questo indica che circa il 94.63% delle predizioni del modello sono corrette sui dati di addestramento.
-
-Questi sono risultati eccellenti e suggeriscono che il tuo modello ha imparato molto bene dai dati di addestramento. Ora puoi considerare di valutare le prestazioni del modello su un set di dati di test separato per assicurarti che il modello generalizzi bene su nuovi dati.
+527/527 [==============================] - 2544s 5s/step - loss: 0.8164 - accuracy: 0.9361 - val_loss: 1395.1002 - val_accuracy: 0.0152
+Epoch 2/3
+527/527 [==============================] - 2255s 4s/step - loss: 0.0606 - accuracy: 0.9882 - val_loss: 2302.2778 - val_accuracy: 0.0264
+Epoch 3/3
+527/527 [==============================] - 2111s 4s/step - loss: 0.0831 - accuracy: 0.9884 - val_loss: 3289.3728 - val_accuracy: 0.0324
+Training Completed!
 </p>
