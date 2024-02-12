@@ -15,7 +15,7 @@ You can save your model by calling the save() function on the model and specifyi
 
 - JSON
 
-. HDF5
+- HDF5
 
 **Result**
 
