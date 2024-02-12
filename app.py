@@ -8,7 +8,7 @@ import os
 from keras.preprocessing import image
 
 app = Flask(__name__)
-model='model.h5'
+model='Model.h5'
 etichette = {
     0: 'Apple Braeburn',
     1: 'Apple Granny Smith',
