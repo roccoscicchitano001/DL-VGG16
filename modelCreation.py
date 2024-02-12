@@ -10,7 +10,7 @@ from keras.applications import VGG16
 batch_size = 32
 
 # Imposta il numero desiderato di epoche
-epochs = 3
+epochs = 5
 
 # Directory principale di addestramento
 train_data_dir = r'set/train/train'
